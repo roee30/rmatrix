@@ -8,6 +8,7 @@ use std::io::stdout;
 
 use crate::env::Env;
 
+#[derive(Debug)]
 pub struct Flake {
     pub start: u16,
     pub column: u16,
@@ -16,6 +17,9 @@ pub struct Flake {
 
 impl Flake {
     pub fn render(&self) -> Result<()> {
+        if self.str.len() == 0 {
+            return Ok(());
+        }
         let head = self.start + self.str.len() as u16 - 1;
         print_at(
             self.column,

@@ -14,14 +14,11 @@ struct Size {
     rows: u16,
     cols: u16,
 }
-type Age = u16;
 
 struct Env {
     rng: ThreadRng,
     size: Size,
     max_flakes: u16,
-    last_generated: Age,
-    flake_gap: Age,
     max_length: u16,
     delay_base: f64,
     speed: u16,
@@ -29,11 +26,10 @@ struct Env {
 
 impl Env {
     fn make(size: Size) -> Self {
+        let max_flakes = size.cols * 2;
         Self {
             size: size,
-            max_flakes: 70,
-            last_generated: 0,
-            flake_gap: 0,
+            max_flakes: max_flakes,
             rng: rand::thread_rng(),
             max_length: 10,
             speed: 10,
@@ -115,7 +111,6 @@ impl Flake {
 struct State {
     flakes: Vec<Flake>,
     env: Env,
-    age: Age,
     cleanup: Cleanup,
 }
 
@@ -124,7 +119,6 @@ impl State {
         Self {
             env: env,
             flakes: flakes,
-            age: 0,
             cleanup: Cleanup { cleaned: false },
         }
     }
@@ -144,18 +138,16 @@ impl State {
             .filter(|f| f.start < rows)
             .map(|f| f.next(&mut env))
             .collect();
-        if fs.len() < env.max_flakes as usize && self.age - env.last_generated >= env.flake_gap {
+        if fs.len() < env.max_flakes as usize  {
             fs.push(Flake {
                 start: 0,
                 column: (&mut env).new_flake_column(),
                 str: vec![env.random_char()],
             });
-            env.last_generated = self.age;
         }
         Self {
             env: env,
             flakes: fs,
-            age: self.age + 1,
             cleanup: self.cleanup,
         }
     }

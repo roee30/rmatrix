@@ -32,7 +32,8 @@ impl Flake {
                 self.column,
                 head - 1,
                 Color::Green,
-                *self.str.iter().last().unwrap(),
+                // *self.str.iter().last().unwrap(),
+                self.str[self.str.len() - 2]
             )?;
         }
         print_at(self.column, self.start, Color::White, ' ')?;

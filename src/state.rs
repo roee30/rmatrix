@@ -33,9 +33,9 @@ impl State {
     fn next(self) -> State {
         let mut env = self.env;
         let rows = env.size.rows;
-        let mut fs: Vec<Flake> = self
-            .flakes
-            .iter()
+        let flakes = self.flakes;
+        let mut fs: Vec<Flake> = flakes
+            .into_iter()
             .filter(|f| f.start < rows)
             .map(|f| f.next(&mut env))
             .collect();
@@ -43,7 +43,7 @@ impl State {
             fs.push(Flake {
                 start: 0,
                 column: (&mut env).new_flake_column(),
-                str: vec![env.random_char()],
+                content: vec![env.random_char()],
             });
         }
         Self {

@@ -12,62 +12,60 @@ use crate::env::Env;
 pub struct Flake {
     pub start: u16,
     pub column: u16,
-    pub str: Vec<char>,
+    pub content: Vec<char>,
 }
 
 impl Flake {
     pub fn render(&self) -> Result<()> {
-        if self.str.len() == 0 {
+        if self.content.len() == 0 {
             return Ok(());
         }
-        let head = self.start + self.str.len() as u16 - 1;
+        let head = self.start + self.content.len() as u16 - 1;
         print_at(
             self.column,
             head,
             Color::White,
-            *self.str.iter().last().unwrap(),
+            *self.content.iter().last().unwrap(),
         )?;
         if head > 0 {
             print_at(
                 self.column,
                 head - 1,
-                Color::Green,
-                // *self.str.iter().last().unwrap(),
-                self.str[self.str.len() - 2]
+                // Color::Green results in grey for some reason
+                Color::AnsiValue(106),
+                self.content[self.content.len() - 2]
             )?;
         }
-        print_at(self.column, self.start, Color::White, ' ')?;
-        Ok(())
+        print_at(self.column, self.start, Color::White, ' ')
     }
-    pub fn next(&self, env: &mut Env) -> Self {
-        let (start, base) = if self.str.len() < env.max_length as usize {
-            (self.start, self.str.clone())
+    pub fn next(self, env: &mut Env) -> Self {
+        let (start, base) = if self.content.len() < env.max_length as usize {
+            (self.start, self.content.clone())
         } else {
             (
                 self.start + 1,
-                self.str.iter().skip(1).map(|c| *c).collect(),
+                self.content.iter().skip(1).map(|c| *c).collect(),
             )
         };
         Self {
             start: start,
             column: self.column,
-            str: push(&base, env.random_char()),
+            content: push(base, env.random_char()),
         }
     }
 }
 fn print_at(x: u16, y: u16, color: Color, str: char) -> Result<()> {
     execute!(
         stdout(),
+        SetAttribute(Attribute::Reset),
         MoveTo(x, y),
-        SetForegroundColor(color),
         SetAttribute(Attribute::Bold),
+        SetForegroundColor(color),
         Print(str),
-        // ResetColor,
-    )?;
-    Ok(())
+        SetAttribute(Attribute::Reset),
+    )
 }
-fn push<T: Copy>(vec: &Vec<T>, item: T) -> Vec<T> {
-    let mut new: Vec<T> = vec.iter().map(|c| *c).collect();
-    new.push(item);
-    new
+fn push<T>(mut vec: Vec<T>, item: T) -> Vec<T> {
+    vec.push(item);
+    vec
 }

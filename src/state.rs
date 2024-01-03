@@ -24,17 +24,14 @@ impl State {
         }
     }
     fn render(&self) -> Result<()> {
-        for f in &self.flakes {
-            f.render()?;
-        }
-        Ok(())
+        self.flakes.iter().map(Flake::render).collect()
     }
 
     fn next(self) -> State {
         let mut env = self.env;
         let rows = env.size.rows;
-        let flakes = self.flakes;
-        let mut fs: Vec<Flake> = flakes
+        let mut fs: Vec<Flake> = self
+            .flakes
             .into_iter()
             .filter(|f| f.start < rows)
             .map(|f| f.next(&mut env))
@@ -108,6 +105,7 @@ impl Cleanup {
                 Show,
                 RestorePosition
             );
+            self.cleaned = true;
         }
     }
 }

@@ -40,11 +40,11 @@ impl Flake {
     }
     pub fn next(self, env: &mut Env) -> Self {
         let (start, base) = if self.content.len() < env.max_length as usize {
-            (self.start, self.content.clone())
+            (self.start, self.content)
         } else {
             (
                 self.start + 1,
-                self.content.iter().skip(1).map(|c| *c).collect(),
+                self.content[1..].to_vec()
             )
         };
         Self {

@@ -29,6 +29,6 @@ impl Env {
     }
 
     pub fn random_char(&mut self) -> char {
-        std::char::from_u32(self.rng.gen_range(0xff65..=0xff9f)).unwrap()
+        std::char::from_u32(self.rng.gen_range(0xff65..=0xff9d)).unwrap()
     }
 }
